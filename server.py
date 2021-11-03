@@ -33,7 +33,7 @@ def run():
     print(f"Server is listening on {SERVER}")
     while True:
         conn, addr = server.accept()
-        thread = threading.Thread(target=handle_client, args=(conn, addr))
+        thread = threading.Thread(target=client_thread, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
@@ -41,15 +41,14 @@ def run():
     Here the connection with the client will be handled.
     This function handles receiving messages from the client.
 """
-def handle_client(conn, addr):
+def client_thread(conn, addr):
     print(f"[NEW CONNECTION] {addr} connected.")
 
     # Receive the confirmation message
     while True:
         confirmation_length = conn.recv(msg_length).decode()
         if confirmation_length:
-            confirmation_length = int(confirmation_length)
-            confirmation = conn.recv(confirmation_length).decode()
+            confirmation = conn.recv(int(confirmation_length)).decode()
 
             # Extract the data from the message
 			confirmation = json.loads(confirmation)
@@ -65,7 +64,10 @@ def handle_client(conn, addr):
             show_confirmations()
 
             # Send the confirmation for receiving the DAB confirmation 
-            conn.send(json.dumps({"received": True}).encode())
+            reply = json.dumps({"received": True}).encode()
+            reply_length = str(len(confirmation)).encode() + (b' ' * (msg_length - len(confirmation)))
+            conn.send(reply_length)
+            conn.send(reply)
 
     # Close the connection
     conn.close()
