@@ -48,7 +48,8 @@ def client_thread(conn, addr):
     while True:
         confirmation_length = conn.recv(msg_length).decode()
         if confirmation_length:
-            confirmation = conn.recv(int(confirmation_length)).decode()
+            confirmation_length = int(confirmation_length)
+            confirmation = conn.recv(confirmation_length).decode()
 
             # Extract the data from the message
 			confirmation = json.loads(confirmation)
