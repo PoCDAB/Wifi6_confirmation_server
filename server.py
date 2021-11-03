@@ -48,7 +48,6 @@ def client_thread(conn, addr):
     while True:
         confirmation_length = conn.recv(msg_length).decode()
         if confirmation_length:
-            print(confirmation_length)
             confirmation_length = int(confirmation_length)
             confirmation = conn.recv(confirmation_length).decode()
 
