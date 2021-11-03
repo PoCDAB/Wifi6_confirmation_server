@@ -11,10 +11,10 @@ import threading
 import json
 
 # general information for the server and messages with the client
-msg_length = 13
+msg_length = 20
 port = 8000
 ip_address = "192.168.3.2"
-address = (SERVER, PORT)
+address = (ip_address, port)
 close_message = "DISCONNECT"
 
 # Dictionary to store the confirmations of DAB messages received by the multiconnectivity modem
@@ -22,7 +22,7 @@ DAB_confirmations = {}
 
 # This creates the server
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
+server.bind(address)
 
 """
     This function is responsible for accepting connections from clients.
@@ -30,7 +30,7 @@ server.bind(ADDR)
 """
 def run():
     server.listen()
-    print(f"Server is listening on {SERVER}")
+    print(f"Server is listening on {ip_address}")
     while True:
         conn, addr = server.accept()
         thread = threading.Thread(target=client_thread, args=(conn, addr))
@@ -48,11 +48,12 @@ def client_thread(conn, addr):
     while True:
         confirmation_length = conn.recv(msg_length).decode()
         if confirmation_length:
+            print(confirmation_length)
             confirmation_length = int(confirmation_length)
             confirmation = conn.recv(confirmation_length).decode()
 
             # Extract the data from the message
-			confirmation = json.loads(confirmation)
+            confirmation = json.loads(confirmation)
 
             # If the data contains the disconnect message close the connection
             if close_message in confirmation:
@@ -66,7 +67,7 @@ def client_thread(conn, addr):
 
             # Send the confirmation for receiving the DAB confirmation 
             reply = json.dumps({"received": True}).encode()
-            reply_length = str(len(confirmation)).encode() + (b' ' * (msg_length - len(confirmation)))
+            reply_length = str(len(reply)).encode() + (b' ' * (msg_length - len(reply)))
             conn.send(reply_length)
             conn.send(reply)
 
