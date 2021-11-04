@@ -12,7 +12,7 @@ import json
 
 # general information for the server and messages with the client
 msg_length = 20
-port = 8000
+port = 9000
 ip_address = "192.168.3.2"
 address = (ip_address, port)
 close_message = "DISCONNECT"
