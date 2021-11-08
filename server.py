@@ -85,9 +85,10 @@ def client_thread(conn, addr):
 def store_confirmation(confirmation):
     dab_id = confirmation.get("dab_id")
     message_type = confirmation.get("message_type")
+    dab_msg_arrived_at = confirmation.get("dab_msg_arrived_at")
 
     if not dab_id in DAB_confirmations:
-        DAB_confirmations[dab_id] = message_type
+        DAB_confirmations[dab_id] = [message_type, dab_msg_arrived_at]
 
 """
     This function shows all the DAB confirmations
@@ -95,11 +96,11 @@ def store_confirmation(confirmation):
 def show_confirmations():
     dab_id_str = "|DAB_ID"
     message_type_str = "|Message type"
-    time_of_arrival_str = "|Time of arrival on the modem|"
-    print(dab_id_str, message_type_str)
+    dab_msg_arrived_at = "|Time DAB message arrived|"
+    print(dab_id_str, message_type_str, dab_msg_arrived_at)
 
-    for dab_id, message_type in DAB_confirmations.items():
-        print(str(dab_id).ljust(len(dab_id_str)) , message_type)
+    for dab_id, message_type, dab_msg_arrived_at in DAB_confirmations.items():
+        print(str(dab_id).ljust(len(dab_id_str)) , message_type.ljust(len(message_type_str)), dab_msg_arrived_at)
 
 """
     This function returns a list of acknowledgement numbers of confirmed dab messages that are received by the server.
