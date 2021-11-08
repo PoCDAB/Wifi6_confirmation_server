@@ -11,7 +11,7 @@ import threading
 import json
 
 # general information for the server and messages with the client
-msg_length = 20
+max_msg_length = 10
 port = 9000
 ip_address = "192.168.3.2"
 address = (ip_address, port)
@@ -46,29 +46,35 @@ def client_thread(conn, addr):
 
     # Receive the confirmation message
     while True:
+        # Receive the length of the confirmation message
         confirmation_length = conn.recv(msg_length).decode()
-        if confirmation_length:
-            confirmation_length = int(confirmation_length)
-            confirmation = conn.recv(confirmation_length).decode()
+        
+        # If the client closes the connection stop the thread
+        if len(confirmation_length) == 0:
+            break
 
-            # Extract the data from the message
-            confirmation = json.loads(confirmation)
+        # Receive the confirmation itself
+        confirmation_length = int(confirmation_length)
+        confirmation = conn.recv(confirmation_length).decode()
 
-            # If the data contains the disconnect message close the connection
-            if close_message in confirmation:
-                print(f"[CLIENT] {close_message}!")
-                break
-            else: # Otherwise store the confirmation
-                store_confirmation(confirmation)
+        # Extract the data from the message
+        confirmation = json.loads(confirmation)
 
-            # Show the DAB messages that are confirmed
-            show_confirmations()
+        # If the data contains the disconnect message close the connection
+        if close_message in confirmation:
+            print(f"[CLIENT] {close_message}!")
+            break
+        else: # Otherwise store the confirmation
+            store_confirmation(confirmation)
 
-            # Send the confirmation for receiving the DAB confirmation 
-            reply = json.dumps({"received": True}).encode()
-            reply_length = str(len(reply)).encode() + (b' ' * (msg_length - len(reply)))
-            conn.send(reply_length)
-            conn.send(reply)
+        # Show the DAB messages that are confirmed
+        show_confirmations()
+
+        # Send the confirmation for receiving the DAB confirmation 
+        reply = json.dumps({"received": get_confirmed_acks()}).encode()
+        reply_length = pad_msg_length(max_msg_length, len(reply))
+        conn.send(reply_length)
+        conn.send(reply)
 
     # Close the connection
     conn.close()
@@ -77,22 +83,38 @@ def client_thread(conn, addr):
     Stores the ack and mstype value in DAB_confirmations when ack is not already in the DAB_confirmations
 """
 def store_confirmation(confirmation):
-    ack = confirmation.get("ACK")
-    mstype = confirmation.get("MSTYPE")
+    dab_id = confirmation.get("dab_id")
+    message_type = confirmation.get("message_type")
 
-    if not ack in DAB_confirmations:
-        DAB_confirmations[ack] = mstype
+    if not dab_id in DAB_confirmations:
+        DAB_confirmations[dab_id] = message_type
 
 """
     This function shows all the DAB confirmations
 """
 def show_confirmations():
-    ack_string = "Acknowledgment number "
-    mstype_string = "Message type"
-    print(ack_string, mstype_string)
+    dab_id_str = "|DAB_ID"
+    message_type_str = "|Message type"
+    time_of_arrival_str = "|Time of arrival on the modem|"
+    print(dab_id_string, message_type_str)
 
-    for ack, mstype in DAB_confirmations.items():
-        print(str(ack).ljust(len(ack_string)) , mstype)
+    for dab_id, message_type in DAB_confirmations.items():
+        print(str(dab_id).ljust(len(dab_id_str)) , message_type)
+
+"""
+    This function returns a list of acknowledgement numbers of confirmed dab messages that are received by the server.
+"""
+def get_confirmed_acks():
+    return list(DAB_confirmations.keys())
+
+"""
+    pad the var msg_length to the padding size. 
+    So that the message containing the msg_length has a fixed size of padding size.
+"""
+def pad_msg_length(padding_size, msg_length):
+    msg_length = str(msg_length).encode()
+    msg_length += b' ' * (padding_size - len(msg_length))
+    return msg_length
 
 # Start the server
 print("[STARTING] server is starting...")
