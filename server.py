@@ -47,7 +47,7 @@ def client_thread(conn, addr):
     # Receive the confirmation message
     while True:
         # Receive the length of the confirmation message
-        confirmation_length = conn.recv(msg_length).decode()
+        confirmation_length = conn.recv(max_msg_length).decode()
         
         # If the client closes the connection stop the thread
         if len(confirmation_length) == 0:
