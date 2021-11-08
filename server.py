@@ -96,7 +96,7 @@ def show_confirmations():
     dab_id_str = "|DAB_ID"
     message_type_str = "|Message type"
     time_of_arrival_str = "|Time of arrival on the modem|"
-    print(dab_id_string, message_type_str)
+    print(dab_id_str, message_type_str)
 
     for dab_id, message_type in DAB_confirmations.items():
         print(str(dab_id).ljust(len(dab_id_str)) , message_type)
