@@ -128,13 +128,13 @@ def build_reply_dict(dab_id_to_confirm, sender):
     
     # Add DAB_confirmation to this list if the dab_id is the same as dab_id_to_confirm
     dab_confirmation = find_dab_confirmation_by_sender(dab_id_to_confirm)
-    reply["ack_information"] = [dab_confirmation.dab_id, dab_confirmation.valid]
+    reply['ack_information'] = [dab_confirmation.dab_id, dab_confirmation.valid]
 
     # Add DAB_confirmation to this list if the confirmation is received from sender using AIS
-    reply["AIS_ack_information"] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and entry.technology == "AIS"]
+    reply['AIS_ack_information'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and entry.technology == "AIS"]
 
     # Add DAB_confirmation to this list if the confirmation received from sender not using AIS is invalid
-    reply["invalid_dab_confirmations"] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and not entry.technology == "AIS" and entry.valid == False]
+    reply['invalid_dab_confirmations'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and not entry.technology == "AIS" and entry.valid == False]
 
     return reply
 
