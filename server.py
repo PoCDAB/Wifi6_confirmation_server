@@ -25,9 +25,9 @@ DAB_confirmations = []
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.bind(address)
 
-@dataclass(order=True,)
+@dataclass(order=True)
 class DAB_confirmation:
-    sort_index: int
+    sort_index: int = field(init=False, repr=False)
     dab_id: int 
     message_type: int
     dab_msg_arrived_at: float
@@ -107,7 +107,7 @@ def client_thread(conn, addr):
     Stores the ack and mstype value in DAB_confirmations when ack is not already in the DAB_confirmations
 """
 def store_confirmation(confirmation):
-    dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"))
+    dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"), confirmation.get("technology"), confirmation.sender("sender"))
 
     DAB_confirmations.append(dab_confirmation) if not dab_confirmation.dab_id in [confirmation.dab_id for confirmation in DAB_confirmations] else print("[SERVER] DAB_confirmation already in list")
 
