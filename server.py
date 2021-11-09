@@ -109,7 +109,7 @@ def client_thread(conn, addr):
 def store_confirmation(confirmation):
     dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"))
 
-    DAB_confirmations.append(dab_confirmation) if dab_confirmation.dab_id in [confirmation.dab_id for confirmation in DAB_confirmation] else return
+    DAB_confirmations.append(dab_confirmation) if not dab_confirmation.dab_id in [confirmation.dab_id for confirmation in DAB_confirmations] else return
 
 """
     This function shows all the DAB confirmations after it sorted the list on dab_id
