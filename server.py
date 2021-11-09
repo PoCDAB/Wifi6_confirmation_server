@@ -41,8 +41,8 @@ class DAB_confirmation:
     def __str__(self) -> str:
         return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Valid: {self.valid}"
 
-    def reply_info_as_list():
-        return [self.dab_id, self.valid]
+    def reply_info_as_set():
+        return (self.dab_id, self.valid)
 
 """
     This function is responsible for accepting connections from clients.
@@ -127,13 +127,14 @@ def build_reply_dict(dab_id_to_confirm, sender):
     reply = dict()
     
     # Add DAB_confirmation to this list if the dab_id is the same as dab_id_to_confirm
-    reply["ack_information"] = find_dab_confirmation_by_sender(dab_id_to_confirm)
+    dab_confirmation = find_dab_confirmation_by_sender(dab_id_to_confirm)
+    reply["ack_information"] = [dab_confirmation.dab_id, dab_confirmation.valid]
 
     # Add DAB_confirmation to this list if the confirmation is received from sender using AIS
-    reply["AIS_ack_information"] = [entry.reply_info_as_list() for entry in DAB_confirmations if entry.sender == sender and entry.technology == "AIS"]
+    reply["AIS_ack_information"] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and entry.technology == "AIS"]
 
     # Add DAB_confirmation to this list if the confirmation received from sender not using AIS is invalid
-    reply["invalid_dab_confirmations"] = [entry.reply_info_as_list() for entry in DAB_confirmations if entry.sender == sender and not entry.technology == "AIS" and entry.valid == False]
+    reply["invalid_dab_confirmations"] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and not entry.technology == "AIS" and entry.valid == False]
 
     return reply
 
