@@ -142,7 +142,7 @@ def build_reply_dict(dab_id_to_confirm, sender):
     This function finds all the dab_confirmations with the dab_id dab_id.
 """
 def find_dab_confirmation_by_sender(dab_id):
-    results = [dab_confirmation for dab_confirmation in DAB_confirmations if dab_confirmation.dab_id = dab_id]
+    results = [dab_confirmation for dab_confirmation in DAB_confirmations if dab_confirmation.dab_id == dab_id]
     return results[0]
 
 """
