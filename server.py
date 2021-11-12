@@ -46,7 +46,7 @@ def run():
     print(f"Server is listening on {ip_address}")
     while True:
         conn, addr = server.accept()
-        thread = threading.Thread(target=client_thread, args=(conn))
+        thread = threading.Thread(target=client_thread, args=(conn, addr))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
@@ -54,7 +54,7 @@ def run():
     Here the connection with the client will be handled.
     This function handles receiving messages from the client.
 """
-def client_thread(conn):
+def client_thread(conn, addr):
     while True:
         try:
             confirmation = receive_confirmation(conn)
