@@ -54,7 +54,7 @@ def run():
     Here the connection with the client will be handled.
     This function handles receiving messages from the client.
 """
-def client_thread(conn, addr):
+def client_thread(conn):
     while True:
         try:
             confirmation = receive_confirmation(conn)
