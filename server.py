@@ -11,19 +11,12 @@ import threading
 import json
 from dataclasses import dataclass, field
 
-# general information for the server and messages with the client
+# General informtion also necessary when importing server
 max_msg_length = 10
-port = 9000
-ip_address = "192.168.3.2"
-address = (ip_address, port)
 close_message = "DISCONNECT"
 
-# DAB_confirmations is a List that holds all the DAB_confirmations that have been received by the server using this program
-DAB_confirmations = []
-
-# This creates the server
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(address)
+class ClientClosedConnectionError(Exception):
+    """This error is raised when the client closes the connection without the disconnect message"""
 
 @dataclass(order=True)
 class DAB_confirmation:
@@ -41,7 +34,7 @@ class DAB_confirmation:
     def __str__(self) -> str:
         return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Valid: {self.valid}"
 
-    def reply_info_as_set():
+    def reply_info_as_set(self):
         return (self.dab_id, self.valid)
 
 """
@@ -53,7 +46,7 @@ def run():
     print(f"Server is listening on {ip_address}")
     while True:
         conn, addr = server.accept()
-        thread = threading.Thread(target=client_thread, args=(conn, addr))
+        thread = threading.Thread(target=client_thread, args=(conn))
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
@@ -62,23 +55,11 @@ def run():
     This function handles receiving messages from the client.
 """
 def client_thread(conn, addr):
-    print(f"[NEW CONNECTION] {addr} connected.")
-
-    # Receive the confirmation message
     while True:
-        # Receive the length of the confirmation message
-        confirmation_length = conn.recv(max_msg_length).decode()
-        
-        # If the client closes the connection stop the thread
-        if len(confirmation_length) == 0:
+        try:
+            confirmation = receive_confirmation(conn)
+        except ClientClosedConnectionError:
             break
-
-        # Receive the confirmation itself
-        confirmation_length = int(confirmation_length)
-        confirmation = conn.recv(confirmation_length).decode()
-
-        # Extract the data from the message
-        confirmation = json.loads(confirmation)
 
         # If the data contains the disconnect message close the connection
         if close_message in confirmation:
@@ -94,14 +75,37 @@ def client_thread(conn, addr):
         # find dab_confirmation by dab_id
         dab_confirmation = find_dab_confirmation_by_sender(confirmation.get("dab_id"))
 
-        # Send the confirmation for receiving the DAB confirmation 
-        reply = json.dumps(build_reply_dict(confirmation.get("dab_id"), dab_confirmation.sender)).encode()
-        reply_length = pad_msg_length(max_msg_length, len(reply))
-        conn.send(reply_length)
-        conn.send(reply)
+        send_reply(conn, confirmation.get("dab_id"), dab_confirmation.sender)
 
     # Close the connection
     conn.close()
+
+"""
+    Receives the confirmation message
+"""
+def receive_confirmation(conn):
+        # Receive the length of the confirmation message
+        confirmation_length = conn.recv(max_msg_length).decode()
+        
+        # If the client closes the connection stop the thread
+        if len(confirmation_length) == 0:
+            raise(ClientClosedConnectionError)
+
+        # Receive the confirmation itself
+        confirmation_length = int(confirmation_length)
+        confirmation = conn.recv(confirmation_length).decode()
+
+        # Return the extracted data from the message
+        return json.loads(confirmation)
+
+"""
+    Send the confirmation for receiving the DAB confirmation 
+"""
+def send_reply(conn, dab_id, sender):
+    reply = json.dumps(build_reply_dict(dab_id, sender)).encode()
+    reply_length = pad_msg_length(max_msg_length, len(reply))
+    conn.send(reply_length)
+    conn.send(reply)
 
 """
     Stores the ack and mstype value in DAB_confirmations when ack is not already in the DAB_confirmations
@@ -155,5 +159,18 @@ def pad_msg_length(padding_size, msg_length):
     return msg_length
 
 # Start the server
-print("[STARTING] server is starting...")
-run()
+if __name__ == "__main__":  
+    # general information for the server and messages with the client
+    port = 9000
+    ip_address = "192.168.3.2"
+    address = (ip_address, port)
+
+    # DAB_confirmations is a List that holds all the DAB_confirmations that have been received by the server using this program
+    DAB_confirmations = []
+
+    # This creates the server
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(address)   
+    
+    print("[STARTING] server is starting...")
+    run()
