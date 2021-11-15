@@ -9,6 +9,10 @@ description: This code accept connections after which it receives confirmations 
 import socket 
 import threading
 import json
+from server import new_print
+
+old_print = print
+print = new_print
 
 # general information for the server and messages with the client
 max_msg_length = 10
