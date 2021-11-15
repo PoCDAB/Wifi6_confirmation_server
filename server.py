@@ -10,6 +10,15 @@ import socket
 import threading
 import json
 from dataclasses import dataclass, field
+from datetime import date, datetime
+
+# Changing print to a print with the time in front
+old_print = print
+
+def new_print(*args, **kwargs):
+    datetime.now().strftime("%H:%M:%S | ", *args, **kwargs)
+
+print = new_print
 
 # General informtion also necessary when importing server
 max_msg_length = 10
@@ -111,9 +120,23 @@ def send_reply(conn, dab_id, sender):
     Stores the ack and mstype value in DAB_confirmations when ack is not already in the DAB_confirmations
 """
 def store_confirmation(confirmation):
-    dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"), confirmation.get("technology"), confirmation.get("sender"))
+    new_dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"), confirmation.get("technology"), confirmation.get("sender"))
 
-    DAB_confirmations.append(dab_confirmation) if not dab_confirmation.dab_id in [confirmation.dab_id for confirmation in DAB_confirmations] else print("[SERVER] DAB_confirmation already in list")
+    if not check_if_in_DAB_confirmations(new_dab_confirmation.dab_id):
+       DAB_confirmations.append(new_dab_confirmation)
+    else:
+        print("[SERVER] DAB_confirmation already in list") 
+
+"""
+    Checks if the dab_id is already in the DAB_confirmations
+"""
+def check_if_in_DAB_confirmations(dab_id):
+    dab_ids = [dab_confirmation.dab_id for dab_confirmation in DAB_confirmations]
+
+    if dab_id in dab_ids:
+        return True
+    else:
+        return False
 
 """
     This function shows all the DAB confirmations after it sorted the list on dab_id
