@@ -16,7 +16,7 @@ from datetime import date, datetime
 old_print = print
 
 def new_print(*args, **kwargs):
-    datetime.now().strftime("%H:%M:%S | ", *args, **kwargs)
+    old_print(datetime.now().strftime("%H:%M:%S | "), *args, **kwargs)
 
 print = new_print
 
