@@ -41,7 +41,7 @@ class DAB_confirmation:
         self.sort_index = self.dab_id
 
     def __str__(self) -> str:
-        return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Valid: {self.valid}"
+        return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Sender: {self.sender}, Valid: {self.valid}"
 
     def reply_info_as_set(self):
         return (self.dab_id, self.valid)
@@ -120,7 +120,13 @@ def send_reply(conn, dab_id, sender):
     Stores the ack and mstype value in DAB_confirmations when ack is not already in the DAB_confirmations
 """
 def store_confirmation(confirmation):
-    new_dab_confirmation = DAB_confirmation(confirmation.get("dab_id"), confirmation.get("message_type"), confirmation.get("dab_message_arrived_at"), confirmation.get("technology"), confirmation.get("sender"))
+    new_dab_confirmation = DAB_confirmation(
+        confirmation.get("dab_id"), 
+        confirmation.get("message_type"), 
+        confirmation.get("dab_message_arrived_at"), 
+        confirmation.get("technology"), 
+        confirmation.get("sender")
+    )
 
     if not check_if_in_DAB_confirmations(new_dab_confirmation.dab_id):
        DAB_confirmations.append(new_dab_confirmation)
