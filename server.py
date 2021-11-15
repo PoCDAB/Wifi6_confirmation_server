@@ -10,7 +10,7 @@ import socket
 import threading
 import json
 from dataclasses import dataclass, field
-from datetime import date, datetime
+from datetime import datetime
 
 # Changing print to a print with the time in front
 old_print = print
