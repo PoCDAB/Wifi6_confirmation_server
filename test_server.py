@@ -2,8 +2,8 @@
 project: slimmer maken multiconnectivity modem
 author: Frank Montenij
 date: 29-10-2021
-description: This code accept connections after which it receives confirmations of DAB message. 
-             The code will store these messages and send back an acknowledgment to the client to inform the client that the confirmation has been received.
+description: This code accept connections after which it receives messages. The server will send a reply message containing the message it received.
+             This code is used for the testing of the FiPy and the raspberry pi. It does not matter this code is different from the main server code.
 '''
 
 import socket 

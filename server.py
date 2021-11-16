@@ -4,6 +4,7 @@ author: Frank Montenij
 date: 29-10-2021
 description: This code accept connections after which it receives confirmations of DAB message. 
              The code will store these messages and send back an acknowledgment to the client to inform the client that the confirmation has been received.
+             The code will also be used when testing the whole confirmation using wifi.
 '''
 
 import socket 
@@ -16,10 +17,11 @@ max_msg_length = 10
 close_message = "DISCONNECT"
 
 class ClientClosedConnectionError(Exception):
-    """This error is raised when the client closes the connection without the disconnect message"""
+    """This error is raised when the client closes the connection without the disconnect message."""
 
 @dataclass(order=True)
 class DAB_confirmation:
+    """A dataclass to store the information of a DAB_confirmation."""
     sort_index: int = field(init=False, repr=False)
     dab_id: int 
     message_type: int
@@ -28,18 +30,21 @@ class DAB_confirmation:
     sender: int
     valid: bool = True
 
+    # Enables to sort the object on the dab_id
     def __post_init__(self):
         self.sort_index = self.dab_id
 
-    def __str__(self) -> str:
+    # A method to represent the data in the object in a readable way
+    def __str__(self):
         return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Sender: {self.sender}, Valid: {self.valid}"
 
+    # Used to retrieve valuable information of this object for the reply process
     def reply_info_as_set(self):
         return (self.dab_id, self.valid)
 
 """
     This function is responsible for accepting connections from clients.
-    It also starts a thread to handle the connection.
+    It also starts a thread to handle the accepted connection.
 """
 def run():
     server.listen()
@@ -51,8 +56,8 @@ def run():
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
 """
-    Here the connection with the client will be handled.
     This function handles receiving messages from the client.
+    And sending back a reply message to the sender.
 """
 def client_thread(conn, addr):
     while True:
@@ -81,7 +86,7 @@ def client_thread(conn, addr):
     conn.close()
 
 """
-    Receives the confirmation message
+    Receives the confirmation message. 
 """
 def receive_confirmation(conn):
         # Receive the length of the confirmation message
@@ -99,7 +104,7 @@ def receive_confirmation(conn):
         return json.loads(confirmation)
 
 """
-    Send the confirmation for receiving the DAB confirmation 
+    Send the reply with the reply dict info
 """
 def send_reply(conn, dab_id, sender):
     reply = json.dumps(build_reply_dict(dab_id, sender)).encode()
@@ -140,7 +145,7 @@ def check_if_in_DAB_confirmations(dab_id):
 """
 def show_confirmations():
    for DAB_confirmation in DAB_confirmations:
-       print(DAB_confirmations)
+       print(DAB_confirmation)
 
 """
     This function returns a dict containing the information necessary and useful for the raspberry pi
