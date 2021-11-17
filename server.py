@@ -10,6 +10,7 @@ description: This code accept connections after which it receives confirmations 
 import socket 
 import threading
 import json
+from typing import List
 from dataclasses import dataclass, field
 
 # General informtion also necessary when importing server
@@ -26,7 +27,7 @@ class DAB_confirmation:
     dab_id: int 
     message_type: int
     dab_msg_arrived_at: float
-    technology: list[str]
+    technology: List[str]
     sender: int
     valid: bool = True
 
