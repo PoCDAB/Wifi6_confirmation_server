@@ -26,7 +26,7 @@ class DAB_confirmation:
     dab_id: int 
     message_type: int
     dab_msg_arrived_at: float
-    technology: str
+    technology: list[str]
     sender: int
     valid: bool = True
 
