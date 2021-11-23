@@ -159,11 +159,11 @@ def build_reply_dict(dab_id_to_confirm, sender):
     dab_confirmation = find_dab_confirmation_by_sender(dab_id_to_confirm)
     reply['ack_information'] = [dab_confirmation.dab_id, dab_confirmation.valid]
 
-    # Add DAB_confirmation to this list if the confirmation is received from sender using AIS
-    reply['AIS_ack_information'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and entry.technology == "AIS"]
-
-    # Add DAB_confirmation to this list if the confirmation received from sender not using AIS is invalid
-    reply['invalid_dab_confirmations'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender and not entry.technology == "AIS" and entry.valid == False]
+    """
+    Add DAB_confirmation to this list if the confirmation is received from sender. 
+    To update the folder which files have been received. Not just the Wifi messages but all the messages. This way the AIS, LoRaWAN and LTE messages can be confirmed. 
+    """
+    reply['different_ack_information'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender]
 
     return reply
 
