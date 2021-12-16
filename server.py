@@ -39,7 +39,7 @@ class DAB_confirmation:
         return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Sender: {self.sender}, Valid: {self.valid}"
 
     # Used to retrieve valuable information of this object for the reply process
-    def reply_info_as_set(self):
+    def get_reply_info(self):
         return (self.dab_id, self.valid)
 
 """
@@ -160,10 +160,10 @@ def build_reply_dict(dab_id_to_confirm, sender):
     reply['ack_information'] = [dab_confirmation.dab_id, dab_confirmation.valid]
 
     """
-    Add DAB_confirmation to this list if the confirmation is received from sender. 
+    Add DAB_confirmation to this list if the confirmation is received from sender and not the same as ack_information. 
     To update the folder which files have been received. Not just the Wifi messages but all the messages. This way the AIS, LoRaWAN and LTE messages can be confirmed. 
     """
-    reply['different_ack_information'] = [entry.reply_info_as_set() for entry in DAB_confirmations if entry.sender == sender]
+    reply['different_ack_information'] = [entry.get_reply_info() for entry in DAB_confirmations if entry.sender == sender and not dab_confirmation.dab_id == entry[0]]
 
     return reply
 
