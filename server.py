@@ -10,6 +10,7 @@ description: This code accept connections after which it receives confirmations 
 import socket 
 import threading
 import json
+import time
 from dataclasses import dataclass, field
 
 # General informtion also necessary when importing server
@@ -36,7 +37,7 @@ class DAB_confirmation:
 
     # A method to represent the data in the object in a readable way
     def __str__(self):
-        return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {self.dab_msg_arrived_at}, Sender: {self.sender}, Valid: {self.valid}"
+        return f"DAB_ID: {self.dab_id}, Message_type: {self.message_type}, Time_DAB_message_arrived: {time.ctime(self.dab_msg_arrived_at)}, Sender: {self.sender}, Valid: {self.valid}"
 
     # Used to retrieve valuable information of this object for the reply process
     def get_reply_info(self):
