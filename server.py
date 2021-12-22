@@ -50,8 +50,8 @@ def run():
     server.listen()
     print(f"Server is listening on {ip_address}")
     while True:
-        conn, addr = server.accept()
-        thread = threading.Thread(target=client_thread, args=(conn, addr))
+        conn, _ = server.accept()
+        thread = threading.Thread(target=client_thread, args=[conn])
         thread.start()
         print(f"[ACTIVE CONNECTIONS] {threading.activeCount() - 1}")
 
@@ -59,7 +59,7 @@ def run():
     This function handles receiving messages from the client.
     And sending back a reply message to the sender.
 """
-def client_thread(conn, addr):
+def client_thread(conn):
     while True:
         try:
             confirmation = receive_confirmation(conn)
@@ -119,7 +119,7 @@ def store_confirmation(confirmation):
     new_dab_confirmation = DAB_confirmation(
         confirmation.get("dab_id"), 
         confirmation.get("message_type"), 
-        confirmation.get("dab_message_arrived_at"), 
+        confirmation.get("dab_msg_arrived_at"), 
         confirmation.get("technology"), 
         confirmation.get("sender")
     )
