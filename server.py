@@ -79,9 +79,9 @@ def client_thread(conn):
         show_confirmations()
 
         # find dab_confirmation by dab_id
-        dab_confirmation = find_dab_confirmation_by_sender(confirmation.get("dab_id"))
+        confirmation_by_dab = find_dab_confirmation_by_sender(confirmation.get("dab_id"))
 
-        send_reply(conn, confirmation.get("dab_id"), dab_confirmation.sender)
+        send_reply(conn, confirmation.get("dab_id"), confirmation_by_dab.sender)
 
     # Close the connection
     conn.close()
@@ -134,7 +134,7 @@ def store_confirmation(confirmation):
     Checks if the dab_id is already in the DAB_confirmations
 """
 def check_if_in_DAB_confirmations(dab_id):
-    dab_ids = [dab_confirmation.dab_id for dab_confirmation in DAB_confirmations]
+    dab_ids = [confirmation_by_dab.dab_id for confirmation_by_dab in DAB_confirmations]
 
     if dab_id in dab_ids:
         return True
@@ -157,14 +157,14 @@ def build_reply_dict(dab_id_to_confirm, sender):
     reply = dict()
     
     # Add DAB_confirmation to this list if the dab_id is the same as dab_id_to_confirm
-    dab_confirmation = find_dab_confirmation_by_sender(dab_id_to_confirm)
-    reply['ack_information'] = [dab_confirmation.dab_id, dab_confirmation.valid]
+    confirmation_by_dab = find_dab_confirmation_by_sender(dab_id_to_confirm)
+    reply['ack_information'] = [confirmation_by_dab.dab_id, confirmation_by_dab.valid]
 
     """
     Add DAB_confirmation to this list if the confirmation is received from sender and not the same as ack_information. 
     To update the folder which files have been received. Not just the Wifi messages but all the messages. This way the AIS, LoRaWAN and LTE messages can be confirmed. 
     """
-    reply['different_ack_information'] = [entry.get_reply_info() for entry in DAB_confirmations if entry.sender == sender and not dab_confirmation.dab_id == entry.dab_id]
+    reply['different_ack_information'] = [entry.get_reply_info() for entry in DAB_confirmations if entry.sender == sender and not confirmation_by_dab.dab_id == entry.dab_id]
 
     return reply
 
@@ -172,7 +172,7 @@ def build_reply_dict(dab_id_to_confirm, sender):
     This function finds all the dab_confirmations with the dab_id dab_id.
 """
 def find_dab_confirmation_by_sender(dab_id):
-    results = [dab_confirmation for dab_confirmation in DAB_confirmations if dab_confirmation.dab_id == dab_id]
+    results = [confirmation_by_dab for confirmation_by_dab in DAB_confirmations if confirmation_by_dab.dab_id == dab_id]
     return results[0]
 
 """
